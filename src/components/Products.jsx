@@ -1,24 +1,28 @@
-import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { add } from "../store/cartSlice";
+import { fetchProducts } from "../store/ProductSlice";
+import { STATUSES } from "../store/ProductSlice";
 
 const Products = () => {
   const dispatch = useDispatch();
-  const [products, setProducts] = useState([]);
+  const { data: products, status } = useSelector((state) => state.product);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      const res = await fetch("https://fakestoreapi.com/products");
-      const data = await res.json();
-      setProducts(data);
-    };
-    fetchProducts();
+    dispatch(fetchProducts());
   }, []);
 
   const handleAdd = (product) => {
     dispatch(add(product));
   };
 
+  if (status === STATUSES.LOADING) {
+    return <h2>Loading....</h2>;
+  }
+
+  if (status === STATUSES.ERROR) {
+    return <h2>Something went wrong!</h2>;
+  }
   return (
     <div className="productsWrapper">
       {products.map((product) => (
